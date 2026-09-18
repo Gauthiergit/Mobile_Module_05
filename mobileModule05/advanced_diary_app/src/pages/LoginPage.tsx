@@ -38,7 +38,7 @@ export default function LoginPage({ navigation }: any) {
       if (currentUser) {
         setUser(currentUser);
         await SaveUserAsync(currentUser);
-        navigation.replace('Profile');
+        navigation.replace('MainTabs');
       } else {
         setUser(null);
         await AsyncStorage.removeItem('user_session').catch(() => {});
@@ -49,7 +49,7 @@ export default function LoginPage({ navigation }: any) {
     AsyncStorage.getItem('user_session').then((storedUser) => {
       if (storedUser) {
         setUser(JSON.parse(storedUser));
-        navigation.replace('Profile');
+        navigation.replace('MainTabs');
       }
     });
 
