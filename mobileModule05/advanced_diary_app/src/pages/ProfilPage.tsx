@@ -7,11 +7,12 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { DiaryEntry } from '../models/DiaryEntry';
 import { EntryCard } from '../components/EntryCard';
 import CreateEntryModal from '../components/modals/CreateEntryModal';
-import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { collection, limit, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import DeleteEntryModal from '../components/modals/DeleteEntryModal';
 import DetailEntryModal from '../components/modals/DetailEntryModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts } from '../theme';
+import { Feeling, feelingRecord } from '../types/Feeling';
 
 export default function ProfilePage({ navigation }: any) {
   const user = auth.currentUser;
@@ -40,7 +41,8 @@ export default function ProfilePage({ navigation }: any) {
     const q = query(
       collection(db, 'diaryEntries'),
       where('userId', '==', user.uid),
-      orderBy('date', 'desc')
+      orderBy('date', 'desc'),
+      limit(2)
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -142,21 +144,40 @@ export default function ProfilePage({ navigation }: any) {
           <Text style={styles.emptySubText}>Il est temps d'écrire ta première entrée !</Text>
         </View>
       ) : (
-          <ScrollView
-            style={styles.listContainer}
-            contentContainerStyle={styles.listContent}
-            onScrollBeginDrag={() => Keyboard.dismiss()}
-            keyboardShouldPersistTaps="handled"
-          >
-            {entries.map((entry) => (
-              <EntryCard
-                key={entry.id}
-                item={entry}
-                onDelete={openDeleteModal}
-                onOpenDetail={openDetailModal}
-              />
-            ))}
-          </ScrollView>
+        <View>
+          <View style={styles.lastEntriesContainer}>
+            <Text style={styles.lastEntriesTitle}>Your last diary entries</Text>
+            <ScrollView
+              // style={styles.listContainer}
+              contentContainerStyle={styles.listContent}
+              onScrollBeginDrag={() => Keyboard.dismiss()}
+              keyboardShouldPersistTaps="handled"
+            >
+              {entries.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  item={entry}
+                  onDelete={openDeleteModal}
+                  onOpenDetail={openDetailModal}
+                />
+              ))}
+            </ScrollView>
+          </View>
+          <View style={styles.feelsContainer}>
+              <Text style={styles.feelsTitle}>Your feel for yours {entries.length} entries</Text>
+              <View>
+                {Object.values(Feeling)
+                  .filter((feel): feel is Feeling => typeof feel === 'number')
+                  .map((feel) => {
+                  const config = feelingRecord[feel];
+                  const IconComponent = config.icon;
+                  return (
+                    <IconComponent key={config.label} size={24} color={config.color} />
+                  );
+                })}
+              </View>
+          </View>
+        </View>
       )}
 
       <CreateEntryModal 
@@ -195,7 +216,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: 'auto',
-    height: 180,
+    height: 140,
     padding: 12,
     overflow: 'hidden',
     flexShrink: 0,
@@ -242,14 +263,41 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paperBright,
     gap: 24
   },
-  listContainer: {
-    flex: 1,
-  },
+  // listContainer: {
+  //   flex: 1,
+  // },
   listContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
-    gap: 16,
+    gap: 10,
   },
+  lastEntriesContainer: {
+    backgroundColor: colors.paperBright,
+    padding: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.line,
+    marginHorizontal: 20,
+  },
+  lastEntriesTitle: {
+    fontFamily: fonts.handwritingBold,
+    fontSize: 20,
+    padding: 10
+  },
+  feelsContainer: {
+    backgroundColor: colors.paperBright,
+    padding: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.line,
+    marginHorizontal: 20,
+  },
+  feelsTitle: {
+    fontFamily: fonts.handwritingBold,
+    fontSize: 20,
+    padding: 10
+  },
+
   // --- VIDE ---
   emptyContainer: {
     justifyContent: 'center',
