@@ -187,7 +187,7 @@ export default function LoginPage({ navigation }: any) {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.loginContainer}>
-        <Text style={styles.loginTitle}>Connexion</Text>
+        <Text style={styles.loginTitle}>Log in</Text>
         
         <View style={styles.buttonGroup}>
           <TouchableOpacity
@@ -196,7 +196,7 @@ export default function LoginPage({ navigation }: any) {
             style={[styles.socialBtn, styles.githubBtn, (Platform.OS !== 'web' && !githubReq) && styles.disabledBtn]}
           >
             <AntDesign name="github" size={24} color="white" />
-            <Text style={styles.btnText}>Continuer avec GitHub</Text>
+            <Text style={styles.btnText}>Continue with GitHub</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -205,12 +205,12 @@ export default function LoginPage({ navigation }: any) {
             style={[styles.socialBtn, styles.googleBtn, !request && styles.disabledBtn]}
           >
             <AntDesign name="google" size={24} color="white" />
-            <Text style={styles.btnText}>Continuer avec Google</Text>
+            <Text style={styles.btnText}>Continue with Google</Text>
           </TouchableOpacity>
         </View>
         
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.cancelBtn}>
-          <Text style={styles.cancelBtnText}>Annuler</Text>
+          <Text style={styles.cancelBtnText}>Cancel</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -21,7 +21,7 @@ export default function HomePage({ navigation }: any) {
           style={styles.loginBtn}
         >
           <Text style={styles.loginBtnText}>
-            Me connecter
+            Log in
           </Text>
         </TouchableOpacity>
       </View>

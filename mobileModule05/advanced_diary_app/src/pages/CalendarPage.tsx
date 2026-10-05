@@ -83,80 +83,87 @@ export default function CalendarPage() {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <Text style={styles.pageTitle}>Mon Calendrier</Text>
+      <ScrollView
+        nestedScrollEnabled
+        onScrollBeginDrag={() => Keyboard.dismiss()}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.pageTitle}>Mon Calendrier</Text>
 
-      <View style={styles.calendarWrapper}>
-        <Calendar
-          current={selectedDate}
-          onDayPress={(day: any) => {
-            setSelectedDate(day.dateString);
-          }}
-          markedDates={{
-            [selectedDate]: { selected: true, disableTouchEvent: true },
-          }}
+        <View style={styles.calendarWrapper}>
+          <Calendar
+            current={selectedDate}
+            onDayPress={(day: any) => {
+              setSelectedDate(day.dateString);
+            }}
+            markedDates={{
+              [selectedDate]: { selected: true, disableTouchEvent: true },
+            }}
 
-          theme={{
-            backgroundColor: colors.paper,
-            calendarBackground: colors.paper,
-            textSectionTitleColor: colors.forestDark,
-            selectedDayBackgroundColor: colors.sage,
-            selectedDayTextColor: colors.white,
-            todayTextColor: colors.forestDark,
-            todayBackgroundColor: colors.sageLight,
-            dayTextColor: colors.forest,
-            textDisabledColor: colors.muted,
-            dotColor: colors.forest,
-            selectedDotColor: colors.white,
-            arrowColor: colors.forest,
-            monthTextColor: colors.forestDark,
-            textDayFontWeight: '500',
-            textMonthFontWeight: 'bold',
-            textDayHeaderFontWeight: '600',
-            textDayFontSize: 16,
-            textMonthFontSize: 18,
-            textDayFontFamily: fonts.body,
-            textDayHeaderFontFamily: fonts.handwritingBold,
-            textMonthFontFamily: fonts.handwritingBold
-          }}
-        />
-      </View>
-
-      {!selectedDate && (
-        <View style={styles.detailsContainer}>
-          <Text style={styles.placeholderText}>Sélectionne une date pour voir tes souvenirs.</Text>
+            theme={{
+              backgroundColor: colors.paper,
+              calendarBackground: colors.paper,
+              textSectionTitleColor: colors.forestDark,
+              selectedDayBackgroundColor: colors.sage,
+              selectedDayTextColor: colors.white,
+              todayTextColor: colors.forestDark,
+              todayBackgroundColor: colors.sageLight,
+              dayTextColor: colors.forest,
+              textDisabledColor: colors.muted,
+              dotColor: colors.forest,
+              selectedDotColor: colors.white,
+              arrowColor: colors.forest,
+              monthTextColor: colors.forestDark,
+              textDayFontWeight: '500',
+              textMonthFontWeight: 'bold',
+              textDayHeaderFontWeight: '600',
+              textDayFontSize: 16,
+              textMonthFontSize: 18,
+              textDayFontFamily: fonts.body,
+              textDayHeaderFontFamily: fonts.handwritingBold,
+              textMonthFontFamily: fonts.handwritingBold
+            }}
+          />
         </View>
-      )}
-      
-      {loading ? (
-        <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.forest} />
-        </View>
-      ) : (
-        <>
-            {entries.length === 0 ? (
-                <View style={styles.detailsContainer}>
-                    <Text style={styles.emptyText}>Ton journal est vide.</Text>
-                    <Text style={styles.emptySubText}>Il est temps d'écrire ta première entrée !</Text>
-                </View>
-            ) : (
-                <ScrollView
+
+        {!selectedDate && (
+          <View style={styles.detailsContainer}>
+            <Text style={styles.placeholderText}> Select a date to view your memories.</Text>
+          </View>
+        )}
+        
+        {loading ? (
+          <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.forest} />
+          </View>
+        ) : (
+          <>
+              {entries.length === 0 ? (
+                  <View style={styles.detailsContainer}>
+                      <Text style={styles.emptyText}>Your journal is empty.</Text>
+                      <Text style={styles.emptySubText}>It's time to write your first entry!</Text>
+                  </View>
+              ) : (
+                  <ScrollView
                     style={styles.listContainer}
                     contentContainerStyle={styles.listContent}
+                    nestedScrollEnabled
                     onScrollBeginDrag={() => Keyboard.dismiss()}
                     keyboardShouldPersistTaps="handled"
-                    >
-                    {entries.map((entry) => (
-                        <EntryCard
-                            key={entry.id}
-                            item={entry}
-                            onDelete={openDeleteModal}
-                            onOpenDetail={openDetailModal}
-                        />
-                    ))}
-                </ScrollView>
-            )}
-        </>
-      )}
+                  >
+                      {entries.map((entry) => (
+                          <EntryCard
+                              key={entry.id}
+                              item={entry}
+                              onDelete={openDeleteModal}
+                              onOpenDetail={openDetailModal}
+                          />
+                      ))}
+                  </ScrollView>
+              )}
+          </>
+        )}
+        </ScrollView>
 
       <DetailEntryModal
         entry={selectedEntry}
@@ -224,8 +231,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listContainer: {
-    flex: 1,
     marginTop: 20,
+    maxHeight: 400,
   },
   listContent: {
     paddingHorizontal: 20,

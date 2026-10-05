@@ -27,7 +27,7 @@ export default function DeleteEntryModal({ entryToDelete, visible, onClose }: De
         onClose();
       } catch (error) {
         console.error("Erreur lors de la suppression :", error);
-        alert("Impossible de supprimer l'entrée.");
+        alert("Unable to delete the entry.");
       } finally {
         setIsDeleting(false);
       }

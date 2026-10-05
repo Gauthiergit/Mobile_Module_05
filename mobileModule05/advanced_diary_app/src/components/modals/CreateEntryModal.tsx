@@ -20,6 +20,8 @@ export default function CreateEntryModal({ visible, onClose }: CreateEntryModalP
   const [content, setContent] = useState('');
   const [selectedFeeling, setSelectedFeeling] = useState<Feeling>(Feeling.Happy);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [titleError, setTitleError] = useState(false);
+  const [contentError, setContentError] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -27,12 +29,19 @@ export default function CreateEntryModal({ visible, onClose }: CreateEntryModalP
       setContent('');
       setSelectedFeeling(Feeling.Happy);
       setIsSubmitting(false);
+      setTitleError(false);
+      setContentError(false);
     }
   }, [visible]);
 
   const handleSave = async () => {
-    if (!title.trim() || !content.trim()) {
-      alert("N'oublie pas de mettre un titre et un contenu !");
+    const isTitleEmpty = !title.trim();
+    const isContentEmpty = !content.trim();
+
+    setTitleError(isTitleEmpty);
+    setContentError(isContentEmpty);
+
+    if (isTitleEmpty || isContentEmpty) {
       return;
     }
 
@@ -73,24 +82,27 @@ export default function CreateEntryModal({ visible, onClose }: CreateEntryModalP
         >
           {/* Header de la modale avec bouton fermer */}
           <View style={styles.modalHeader}>
-            <Text style={styles.pageTitle}>Nouvelle Entrée</Text>
+            <Text style={styles.pageTitle}>New entry</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <AntDesign name="close" size={24} color="#9ca3af" />
             </TouchableOpacity>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            <Text style={styles.label}>Titre</Text>
+            <Text style={styles.label}>Title</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Résumé de ma journée..."
-              placeholderTextColor="#6b7280"
+              style={[styles.input, titleError && styles.inputError]}
+              placeholder={titleError ? "Need the title" : "Summary of my day..."}
+              placeholderTextColor={titleError ? colors.danger : "#6b7280"}
               maxLength={40}
               value={title}
-              onChangeText={setTitle}
+              onChangeText={(value) => {
+                setTitle(value);
+                if (value.trim()) setTitleError(false);
+              }}
             />
 
-            <Text style={styles.label}>Comment te sens-tu ?</Text>
+            <Text style={styles.label}>How do you feel ?</Text>
             <View style={styles.feelingsContainer}>
               {Object.values(Feeling)
                 .filter((feel): feel is Feeling => typeof feel === 'number')
@@ -114,17 +126,20 @@ export default function CreateEntryModal({ visible, onClose }: CreateEntryModalP
                 })}
             </View>
 
-            <Text style={styles.label}>Cher journal...</Text>
+            <Text style={styles.label}>Dear diary...</Text>
             <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Aujourd'hui, j'ai..."
-              placeholderTextColor="#6b7280"
+              style={[styles.input, styles.textArea, contentError && styles.inputError]}
+              placeholder={contentError ? "Need the content" : "Today I ..."}
+              placeholderTextColor={contentError ? colors.danger : "#6b7280"}
               multiline
               numberOfLines={6}
               textAlignVertical="top"
               maxLength={2000}
               value={content}
-              onChangeText={setContent}
+              onChangeText={(value) => {
+                setContent(value);
+                if (value.trim()) setContentError(false);
+              }}
             />
 
             <TouchableOpacity 
@@ -153,6 +168,7 @@ const styles = StyleSheet.create({
   closeBtn: { padding: 5 },
   label: { fontSize: 20, fontFamily: fonts.handwritingBold, color: colors.ink, marginBottom: 10, marginTop: 15 },
   input: { backgroundColor: colors.paperBright, borderWidth: 1, borderColor: colors.line, borderRadius: 8, padding: 16, color: colors.ink, fontFamily: fonts.handwriting, fontSize: 19 },
+  inputError: { borderColor: colors.danger},
   textArea: { minHeight: 120 },
   feelingsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10 },
   feelingBtn: { width: '22%', minWidth: 72, alignItems: 'center', paddingVertical: 10, paddingHorizontal: 4, borderWidth: 1, borderColor: colors.line, borderRadius: 8, backgroundColor: colors.paperBright },

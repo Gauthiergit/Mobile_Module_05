@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ImageBackground, ActivityIndicator, Keyboard, ScrollView, Platform } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../../firebaseConfig'; 
@@ -13,6 +13,7 @@ import DetailEntryModal from '../components/modals/DetailEntryModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts } from '../theme';
 import { Feeling, feelingRecord } from '../types/Feeling';
+import { calculatePercentage } from '../utils/calculation';
 
 export default function ProfilePage({ navigation }: any) {
   const user = auth.currentUser;
@@ -41,8 +42,7 @@ export default function ProfilePage({ navigation }: any) {
     const q = query(
       collection(db, 'diaryEntries'),
       where('userId', '==', user.uid),
-      orderBy('date', 'desc'),
-      limit(2)
+      orderBy('date', 'desc')
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -55,12 +55,16 @@ export default function ProfilePage({ navigation }: any) {
       setEntries(entriesData);
       setLoading(false);
     }, (error) => {
-      console.error("Erreur lors de la récupération des journaux:", error);
+      console.error("Error when try to get entries", error);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [user]);
+
+  const entriesDisplayed = useMemo(() => {
+    return entries.slice(0, 2);
+  }, [entries]);
 
   const handleSignOut = async () => {
     await AsyncStorage.removeItem('user_session').catch(() => {});
@@ -82,9 +86,9 @@ export default function ProfilePage({ navigation }: any) {
     return (
       <View style={styles.errorContainer}>
         <View style={styles.errorContent}>
-            <Text style={{color: 'black'}}>Aucun utilisateur connecté.</Text>
+            <Text style={{color: 'black'}}>No users logged in.</Text>
             <TouchableOpacity onPress={() => navigation.replace('Login')} style={styles.signOutBtn}>
-                <Text style={styles.btnText}>Aller à la connexion</Text>
+                <Text style={styles.btnText}>Go to login</Text>
             </TouchableOpacity>
         </View>
       </View>
@@ -130,30 +134,33 @@ export default function ProfilePage({ navigation }: any) {
             </TouchableOpacity>
         </ImageBackground>
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Mon Journal Intime</Text>
+            <Text style={styles.sectionTitle}>My Diary</Text>
             <TouchableOpacity 
                 style={styles.addBtn}
                 onPress={() => setCreateModalVisible(true)}
             >
-                <Text style={styles.addBtnText}>+ Écrire</Text>
+                <Text style={styles.addBtnText}>+ Add</Text>
             </TouchableOpacity>
         </View>
         {entries.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Ton journal est vide.</Text>
-          <Text style={styles.emptySubText}>Il est temps d'écrire ta première entrée !</Text>
+          <Text style={styles.emptyText}>Your journal is empty.</Text>
+          <Text style={styles.emptySubText}>It's time to write your first entry !</Text>
         </View>
       ) : (
-        <View>
+        <ScrollView
+              contentContainerStyle={styles.contentContainer}
+              onScrollBeginDrag={() => Keyboard.dismiss()}
+              keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.lastEntriesContainer}>
             <Text style={styles.lastEntriesTitle}>Your last diary entries</Text>
             <ScrollView
-              // style={styles.listContainer}
               contentContainerStyle={styles.listContent}
               onScrollBeginDrag={() => Keyboard.dismiss()}
               keyboardShouldPersistTaps="handled"
             >
-              {entries.map((entry) => (
+              {entriesDisplayed.map((entry) => (
                 <EntryCard
                   key={entry.id}
                   item={entry}
@@ -165,19 +172,22 @@ export default function ProfilePage({ navigation }: any) {
           </View>
           <View style={styles.feelsContainer}>
               <Text style={styles.feelsTitle}>Your feel for yours {entries.length} entries</Text>
-              <View>
+              <View style={styles.feelsList}>
                 {Object.values(Feeling)
                   .filter((feel): feel is Feeling => typeof feel === 'number')
                   .map((feel) => {
                   const config = feelingRecord[feel];
                   const IconComponent = config.icon;
                   return (
-                    <IconComponent key={config.label} size={24} color={config.color} />
+                    <View key={config.label} style={styles.feelContent}>
+                      <IconComponent size={24} color={config.color} />
+                      <Text style={styles.percentageText}>{calculatePercentage(feel, entries)} %</Text>
+                    </View>
                   );
                 })}
               </View>
           </View>
-        </View>
+        </ScrollView>
       )}
 
       <CreateEntryModal 
@@ -263,17 +273,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paperBright,
     gap: 24
   },
-  // listContainer: {
-  //   flex: 1,
-  // },
+  contentContainer: {
+    gap: 10
+  },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
     gap: 10,
   },
   lastEntriesContainer: {
     backgroundColor: colors.paperBright,
-    padding: 4,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: colors.line,
@@ -282,7 +291,8 @@ const styles = StyleSheet.create({
   lastEntriesTitle: {
     fontFamily: fonts.handwritingBold,
     fontSize: 20,
-    padding: 10
+    padding: 10,
+    marginHorizontal: 10
   },
   feelsContainer: {
     backgroundColor: colors.paperBright,
@@ -291,6 +301,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     marginHorizontal: 20,
+  },
+  feelsList:{
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginHorizontal: 10,
+    paddingBottom: 4
+  },
+  feelContent: {
+    flexDirection: 'row',
+    width: '45%',
+    gap: 20,
+  },
+  percentageText: {
+    fontFamily: fonts.body,
+    fontSize: 20
   },
   feelsTitle: {
     fontFamily: fonts.handwritingBold,
@@ -343,5 +369,6 @@ addBtnText: {
   color: colors.white,
   fontFamily: fonts.handwritingBold,
   fontSize: 18,
+  padding: 2
 },
 });
