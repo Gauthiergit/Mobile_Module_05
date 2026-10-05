@@ -301,13 +301,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     marginHorizontal: 20,
+    paddingBottom: 10
   },
   feelsList:{
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 10,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
     marginHorizontal: 10,
-    paddingBottom: 4
+    padding: 4
   },
   feelContent: {
     flexDirection: 'row',

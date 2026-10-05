@@ -43,9 +43,9 @@ export default function DeleteEntryModal({ entryToDelete, visible, onClose }: De
       >
         <View style={styles.deleteModalOverlay}>
           <View style={styles.deleteModalContent}>
-            <Text style={styles.deleteModalTitle}>Supprimer cette page ?</Text>
+            <Text style={styles.deleteModalTitle}>Delete this page ?</Text>
             <Text style={styles.deleteModalText}>
-              Cette action est définitive. Tu ne pourras pas récupérer ce souvenir.
+              This action is irreversible. You will not be able to recover this memory.
             </Text>
             
             <View style={styles.deleteModalActions}>
@@ -54,7 +54,7 @@ export default function DeleteEntryModal({ entryToDelete, visible, onClose }: De
                 onPress={onClose}
                 disabled={isDeleting}
               >
-                <Text style={styles.cancelDeleteBtnText}>Annuler</Text>
+                <Text style={styles.cancelDeleteBtnText}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
@@ -65,7 +65,7 @@ export default function DeleteEntryModal({ entryToDelete, visible, onClose }: De
                 {isDeleting ? (
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
-                  <Text style={styles.confirmDeleteBtnText}>Supprimer</Text>
+                  <Text style={styles.confirmDeleteBtnText}>Delete</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
   deleteModalTitle: { fontSize: 27, fontFamily: fonts.handwritingBold, color: colors.forestDark, marginBottom: 12 },
   deleteModalText: { fontSize: 19, fontFamily: fonts.handwriting, color: colors.muted, lineHeight: 25, marginBottom: 24 },
   deleteModalActions: { flexDirection: 'row', gap: 12 },
-  cancelDeleteBtn: { flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: colors.line, alignItems: 'center' },
-  cancelDeleteBtnText: { color: colors.ink, fontFamily: fonts.handwritingBold, fontSize: 18 },
+  cancelDeleteBtn: { flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: colors.line, alignItems: 'center', paddingHorizontal: 4},
+  cancelDeleteBtnText: { color: colors.ink, fontFamily: fonts.handwritingBold, fontSize: 18, paddingHorizontal: 4},
   confirmDeleteBtn: { flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: colors.danger, alignItems: 'center' },
   confirmDeleteBtnText: { color: colors.white, fontFamily: fonts.handwritingBold, fontSize: 18 },
 });

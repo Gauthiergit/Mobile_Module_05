@@ -35,7 +35,7 @@ function MainTabs() {
         name="ProfileTab" 
         component={ProfilePage} 
         options={{
-          tabBarLabel: 'Profil',
+          tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => <AntDesign name="user" size={size} color={color} />,
         }}
       />
@@ -43,7 +43,7 @@ function MainTabs() {
         name="CalendarTab" 
         component={CalendarPage} 
         options={{
-          tabBarLabel: 'Calendrier',
+          tabBarLabel: 'Calendar',
           tabBarIcon: ({ color, size }) => <AntDesign name="calendar" size={size} color={color} />,
         }}
       />
