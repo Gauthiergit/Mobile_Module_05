@@ -41,7 +41,7 @@ You need to use an ios simulator if you want to test it on phone (ios simulatior
 4. Move on the project and launch it
 
    ```bash
-   cd mobileModule04/diary_app
+   cd mobileModule05/advanced_diary_app
    make install
    make start
    ```
