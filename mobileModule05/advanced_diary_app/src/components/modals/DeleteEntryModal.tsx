@@ -1,11 +1,11 @@
 import { deleteDoc, doc } from 'firebase/firestore';
-import { useState } from 'react';
 import { 
   View, Text, TouchableOpacity, StyleSheet, 
   ActivityIndicator, Modal 
 } from 'react-native';
 import { db } from '../../../firebaseConfig';
 import { colors, fonts } from '../../theme';
+import Toast from 'react-native-toast-message';
 
 
 interface DeleteEntryModalProps {
@@ -16,21 +16,19 @@ interface DeleteEntryModalProps {
 
 export default function DeleteEntryModal({ entryToDelete, visible, onClose }: DeleteEntryModalProps) {
 
-    const [isDeleting, setIsDeleting] = useState(false);
-  
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
       if (!entryToDelete) return;
       
-      setIsDeleting(true);
-      try {
-        await deleteDoc(doc(db, 'diaryEntries', entryToDelete));
-        onClose();
-      } catch (error) {
-        console.error("Erreur lors de la suppression :", error);
-        alert("Unable to delete the entry.");
-      } finally {
-        setIsDeleting(false);
-      }
+      deleteDoc(doc(db, 'diaryEntries', entryToDelete)).catch((error) => {
+        console.error("Error on delete entry :", error);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Can not delete the entry',
+        });
+      });
+
+      onClose();
     };
   
   return (
@@ -52,7 +50,6 @@ export default function DeleteEntryModal({ entryToDelete, visible, onClose }: De
               <TouchableOpacity 
                 style={styles.cancelDeleteBtn}
                 onPress={onClose}
-                disabled={isDeleting}
               >
                 <Text style={styles.cancelDeleteBtnText}>Cancel</Text>
               </TouchableOpacity>
@@ -60,13 +57,8 @@ export default function DeleteEntryModal({ entryToDelete, visible, onClose }: De
               <TouchableOpacity 
                 style={styles.confirmDeleteBtn}
                 onPress={handleDeleteConfirm}
-                disabled={isDeleting}
               >
-                {isDeleting ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Text style={styles.confirmDeleteBtnText}>Delete</Text>
-                )}
+                <Text style={styles.confirmDeleteBtnText}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>

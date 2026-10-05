@@ -12,6 +12,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfilePage from './src/pages/ProfilPage';
 import { AntDesign } from '@expo/vector-icons';
 import CalendarPage from './src/pages/CalendarPage';
+import NetInfo from '@react-native-community/netinfo';
+import Toast from 'react-native-toast-message';
+import { useEffect, useRef } from 'react';
 
 WebBrowser.maybeCompleteAuthSession(); 
 
@@ -54,6 +57,35 @@ function MainTabs() {
 export default function App() {
   const [fontsLoaded] = useFonts({ Caveat_400Regular, Caveat_700Bold });
 
+  const wasOffline = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected === false) {
+        wasOffline.current = true;
+        Toast.show({
+          type: 'error',
+          text1: 'No connection 📡',
+          text2: 'Your modifications will be saved localy.',
+          position: 'top',
+          visibilityTime: 4000,
+        });
+      } 
+      else if (state.isConnected === true && wasOffline.current) {
+        wasOffline.current = false;
+        Toast.show({
+          type: 'success',
+          text1: 'Connection restored 🚀',
+          text2: 'Your datas are synchronized.',
+          position: 'top',
+          visibilityTime: 3000,
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7F4EA' }}>
@@ -74,6 +106,7 @@ export default function App() {
           <Stack.Screen name="MainTabs" component={MainTabs} />
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast />
     </SafeAreaProvider>  
   );
 }

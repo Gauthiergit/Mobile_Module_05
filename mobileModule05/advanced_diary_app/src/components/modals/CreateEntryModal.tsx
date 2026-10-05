@@ -9,6 +9,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { Feeling, feelingRecord } from '../../types/Feeling';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts } from '../../theme';
+import Toast from 'react-native-toast-message';
 
 interface CreateEntryModalProps {
   visible: boolean;
@@ -34,7 +35,7 @@ export default function CreateEntryModal({ visible, onClose }: CreateEntryModalP
     }
   }, [visible]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     const isTitleEmpty = !title.trim();
     const isContentEmpty = !content.trim();
 
@@ -45,26 +46,26 @@ export default function CreateEntryModal({ visible, onClose }: CreateEntryModalP
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("Non connecté");
+    const user = auth.currentUser;
+    if (!user) return;
 
-      await addDoc(collection(db, 'diaryEntries'), {
-        userId: user.uid,
-        email: user.email || 'Email masqué (GitHub)',
-        title: title,
-        content: content,
-        feeling: selectedFeeling,
-        date: new Date(),
+    onClose();
+
+    addDoc(collection(db, 'diaryEntries'), {
+      userId: user.uid,
+      email: user.email || 'Email masqué (GitHub)',
+      title: title,
+      content: content,
+      feeling: selectedFeeling,
+      date: new Date(),
+    }).catch((error) => {
+      console.error("Error during save :", error);
+      Toast.show({
+        type: 'error',
+        text1: 'Erreur',
+        text2: 'Can not save entry into diary',
       });
-
-      onClose();
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde :", error);
-      alert("Une erreur est survenue.");
-      setIsSubmitting(false);
-    }
+    });
   };
 
   return (

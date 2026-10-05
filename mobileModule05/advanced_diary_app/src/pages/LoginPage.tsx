@@ -15,6 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { StyleSheet } from 'react-native';
 import { colors, fonts } from '../theme';
+import NetInfo from '@react-native-community/netinfo';
+import Toast from 'react-native-toast-message';
 
 export default function LoginPage({ navigation }: any) {
   const [user, setUser] = useState<User | null>(null);
@@ -80,6 +82,17 @@ export default function LoginPage({ navigation }: any) {
   );
 
   const handleGithubSignin = async () => {
+    const networkState = await NetInfo.fetch();
+  
+    if (!networkState.isConnected) {
+      Toast.show({
+        type: 'error',
+        text1: 'Connection required',
+        text2: 'You must be connected to the Internet to log in.',
+      });
+      return;
+    }
+
     if (Platform.OS === 'web') {
       setLoading(true);
       const provider = new GithubAuthProvider();
@@ -153,6 +166,20 @@ export default function LoginPage({ navigation }: any) {
     })
   });
 
+  const handleGoogleSignin = async () => {
+    const networkState = await NetInfo.fetch();
+    
+    if (!networkState.isConnected) {
+      Toast.show({
+        type: 'error',
+        text1: 'Connection required',
+        text2: 'You must be connected to the Internet to log in.',
+      });
+      return; 
+    }
+    promptAsync();
+  };
+
   useEffect(() => {
     const signInWithGoogle = async () => {
       if (response?.type !== 'success') return;
@@ -201,7 +228,7 @@ export default function LoginPage({ navigation }: any) {
 
           <TouchableOpacity
             disabled={!request}
-            onPress={() => promptAsync()}
+            onPress={handleGoogleSignin}
             style={[styles.socialBtn, styles.googleBtn, !request && styles.disabledBtn]}
           >
             <AntDesign name="google" size={24} color="white" />
@@ -239,10 +266,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 32,
-    borderRadius: 24, // rounded-3xl
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#f3f4f6', // border-gray-100
-    // Ombres natives (remplace shadow-sm)
+    borderColor: '#f3f4f6',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -250,29 +276,29 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   avatar: {
-    width: 96, // w-24
-    height: 96, // h-24
+    width: 96,
+    height: 96,
     borderRadius: 48,
     marginBottom: 16,
     borderWidth: 4,
-    borderColor: '#eff6ff', // blue-50
+    borderColor: '#eff6ff',
   },
   welcomeTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1f2937', // gray-800
+    color: '#1f2937',
     textAlign: 'center',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#6b7280', // gray-500
+    color: '#6b7280',
     textAlign: 'center',
     marginBottom: 32,
   },
   signOutBtn: {
     width: '100%',
-    backgroundColor: '#ef4444', // red-500
+    backgroundColor: '#ef4444',
     paddingVertical: 14,
     borderRadius: 12,
     marginBottom: 12,
@@ -281,7 +307,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   backBtnText: {
-    color: '#9ca3af', // gray-400
+    color: '#9ca3af',
     fontSize: 14,
   },
 
@@ -298,7 +324,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   buttonGroup: {
-    gap: 16, // Équivalent de space-y-4 et gap-4
+    gap: 16,
   },
   socialBtn: {
     width: '100%',
